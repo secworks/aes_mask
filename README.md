@@ -2,7 +2,10 @@
 Experimental core for performing masking of AES by generating noise.
 
 ## Status
-Not completed does **NOT** work.
+The core is sort of completed. But does it provide maskingt?
+Need to implement the testbench to at least try different inputs and see
+that it generates noise. We should measure toggle rate etc.
+
 
 
 ## Introduction
@@ -37,8 +40,34 @@ transform that modifies the AES implementing, but by adding random power
 noise in sync with the AES functionality. A separate core that can work
 in parallel with AES and cause variance in power consumption.
 
-Basically the core implements the AES encipher pipeline. But the key
-schedule is different. And the S-boxes used are different. The core
-operates in something akin to CBC mode and the key is transformed
+Basically the core implements parts of the AES encipher pipeline. But
+the key schedule is different. And the S-boxes used are different. The
+core operates in something akin to CBC mode and the key is transformed
 between next() calls. This *should* cause the noise to vary in between
 calls... Or is that bad? Not sure. Lets find out!
+
+
+## Implementation
+The core borrows the MixColumns And AddRoundKey operations from AES. The
+core borrows the 4-bit S-boxes from the [PRINCE lightweight, low latency
+block cipher](https://eprint.iacr.org/2012/529.pdf). The core
+instantiate 32 of these S-boxes.
+
+
+### Implementation results
+#### Xilinx Artix-7
+Tool: ISE 14.7
+
+Device: xc7a200t
+
+Package: fbg676
+
+Speed: -3
+
+Number of Slice Registers: 256
+
+Number of Slice LUTs: 742
+
+Number of Slices: 378
+
+Max clock frequency: 213 MHz
