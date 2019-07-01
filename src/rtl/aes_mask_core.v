@@ -58,12 +58,8 @@ module aes_mask_core(
 
 
   //----------------------------------------------------------------
-  // Internal constant and parameter definitions.
-  //----------------------------------------------------------------
-
-
-  //----------------------------------------------------------------
   // Registers including update variables and write enable.
+  // And wires to connect the sboxes.
   //----------------------------------------------------------------
   reg [127 : 0] round_key_reg;
   reg [127 : 0] round_key_new;
@@ -78,8 +74,7 @@ module aes_mask_core(
 
 
   //----------------------------------------------------------------
-  // Instantiations.
-  // We instantiate 32 4-bit Sboxes.
+  // Sbox Instantiations.
   //----------------------------------------------------------------
   genvar i;
   generate
@@ -143,12 +138,6 @@ module aes_mask_core(
     end
   endfunction // mixcolumns
 
-  function [127 : 0] addroundkey(input [127 : 0] data, input [127 : 0] rkey);
-    begin
-      addroundkey = data ^ rkey;
-    end
-  endfunction // addroundkey
-
 
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
@@ -197,7 +186,7 @@ module aes_mask_core(
       // AES Round. Almost.
       mixed_state = mixcolumns(state_reg);
       sbox_in = mixed_state;
-      rkey_state = addroundkey(sbox_out, round_key_reg);
+      rkey_state = sbox_out ^ round_key_reg;
 
       if (init)
         begin
@@ -205,13 +194,11 @@ module aes_mask_core(
           state_we  = 1'h1;
         end
 
-
       if (next)
         begin
           state_we = 1'h1;
           state_new = rkey_state;
         end
-
 
       if (finalize)
         begin
@@ -240,7 +227,6 @@ module aes_mask_core(
           round_key_we  = 1'h1;
         end
 
-
       if (next)
         begin
           round_key_we  = 1'h1;
@@ -256,7 +242,6 @@ module aes_mask_core(
                                round_key_reg[127 : 19]};
             end
         end
-
 
       if (finalize)
         begin
