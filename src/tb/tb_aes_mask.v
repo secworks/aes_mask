@@ -63,11 +63,11 @@ module tb_aes_mask();
   reg            tb_reset_n;
   reg            tb_init;
   reg            tb_next;
+  reg            tb_finalize;
   reg [127 : 0]  tb_key;
   reg            tb_keylen;
   reg [127 : 0]  tb_block;
   wire [127 : 0] tb_result;
-  wire           tb_ready;
 
 
   //----------------------------------------------------------------
@@ -79,13 +79,13 @@ module tb_aes_mask();
 
                .init(tb_init),
                .next(tb_next),
+               .finalize(tb_finalize),
 
                .key(tb_key),
                .keylen(tb_keylen),
 
                .block(tb_block),
-               .result(tb_result),
-               .ready(tb_ready)
+               .result(tb_result)
               );
 
 
@@ -168,29 +168,6 @@ module tb_aes_mask();
 
 
   //----------------------------------------------------------------
-  // wait_ready()
-  //
-  // Wait for the ready flag in the dut to be set.
-  //
-  // Note: It is the callers responsibility to call the function
-  // when the dut is actively processing and will in fact at some
-  // point set the flag.
-  //----------------------------------------------------------------
-  task wait_ready;
-    begin
-      while (!tb_ready)
-        begin
-          #(CLK_PERIOD);
-          if (DUMP_WAIT)
-            begin
-              dump_dut_state();
-            end
-        end
-    end
-  endtask // wait_ready
-
-
-  //----------------------------------------------------------------
   // init_sim()
   //
   // Initialize all counters and testbed functionality as well
@@ -203,13 +180,14 @@ module tb_aes_mask();
       tc_ctr     = 0;
       tb_monitor = 0;
 
-      tb_clk     = 1'h0;
-      tb_reset_n = 1'h1;
-      tb_keylen  = 1'h0;
-      tb_init    = 1'h0;
-      tb_next    = 1'h0;
-      tb_key     = 128'h0;
-      tb_block   = 128'h0;
+      tb_clk      = 1'h0;
+      tb_reset_n  = 1'h1;
+      tb_keylen   = 1'h0;
+      tb_init     = 1'h0;
+      tb_next     = 1'h0;
+      tb_finalize = 1'h0;
+      tb_key      = 128'h0;
+      tb_block    = 128'h0;
     end
   endtask // init_sim
 

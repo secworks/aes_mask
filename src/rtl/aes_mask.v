@@ -43,6 +43,7 @@ module aes_mask(
 
                 input wire            init,
                 input wire            next,
+                input wire            finalize,
 
                 input wire [127 : 0]  key,
                 input wire            keylen,
@@ -60,9 +61,6 @@ module aes_mask(
   localparam CTRL_INIT  = 2'h1;
   localparam CTRL_NEXT  = 2'h2;
 
-  localparam AES_128_ROUNDS = 10;
-  localparam AES_256_ROUNDS = 14;
-
 
   //----------------------------------------------------------------
   // Registers including update variables and write enable.
@@ -70,35 +68,10 @@ module aes_mask(
   reg [127 : 0] round_key_reg;
   reg [127 : 0] round_key_new;
   reg           round_key_we;
-  reg           init_key;
-  reg           next_key;
-  reg           final_key;
 
   reg [127 : 0] state_reg;
   reg [127 : 0] state_new;
   reg           state_we;
-  reg           init_state;
-  reg           next_state;
-  reg           final_state;
-
-  reg [3 : 0]   round_ctr_reg;
-  reg [3 : 0]   round_ctr_new;
-  reg           round_ctr_rst;
-  reg           round_ctr_inc;
-  reg           round_ctr_we;
-
-  reg [1 : 0] core_ctrl_reg;
-  reg [1 : 0] core_ctrl_new;
-  reg         core_ctrl_we;
-
-  reg         ready_reg;
-  reg         ready_new;
-  reg         ready_we;
-
-
-  //----------------------------------------------------------------
-  // Wires.
-  //----------------------------------------------------------------
 
 
   //----------------------------------------------------------------
@@ -109,7 +82,6 @@ module aes_mask(
   //----------------------------------------------------------------
   // Concurrent connectivity for ports etc.
   //----------------------------------------------------------------
-  assign ready  = ready_reg;
   assign result = state_reg;
 
 
@@ -124,25 +96,16 @@ module aes_mask(
     begin: reg_update
       if (!reset_n)
         begin
-          round_ctr_reg <= 4'h0;
           round_key_reg <= 128'h0;
           state_reg     <= 128'h0;
-          ready_reg     <= 1'h1;
-          core_ctrl_reg <= CTRL_IDLE;
         end
       else
         begin
-          if (ready_we)
-            ready_reg <= ready_new;
-
-          if (round_ctr_we)
-            round_ctr_reg <= round_ctr_new;
-
           if (round_key_we)
             round_key_reg <= round_key_new;
 
-          if (core_ctrl_we)
-            core_ctrl_reg <= core_ctrl_new;
+          if (state_we)
+            state_reg <= state_new;
         end
     end // reg_update
 
@@ -157,14 +120,14 @@ module aes_mask(
       state_new = 128'h0;
       state_we  = 1'h0;
 
-      if (init_state)
+      if (init)
         begin
           state_reg = block;
           state_we  = 1'h1;
         end
 
 
-      if (next_state)
+      if (next)
         begin
           state_we = 1'h1;
 
@@ -179,7 +142,7 @@ module aes_mask(
         end
 
 
-      if (final_state)
+      if (finalize)
         begin
           state_we  = 1'h1;
           state_new = state_reg ^ block;
@@ -200,14 +163,14 @@ module aes_mask(
       round_key_new = 128'h0;
       round_key_we  = 1'h0;
 
-      if (init_key)
+      if (init)
         begin
           round_key_new = key;
           round_key_we  = 1'h1;
         end
 
 
-      if (next_key)
+      if (next)
         begin
           round_key_we  = 1'h1;
 
@@ -224,92 +187,12 @@ module aes_mask(
         end
 
 
-      if (final_key)
+      if (finalize)
         begin
           round_key_we  = 1'h1;
           round_key_new = round_key_reg ^ key;
         end
     end
-
-
-  //----------------------------------------------------------------
-  // round_ctr_logic
-  //
-  // Update logic for the round counter.
-  //----------------------------------------------------------------
-  always @*
-    begin : round_ctr_logic
-      round_ctr_new = 4'h0;
-      round_ctr_we  = 1'h0;
-
-      if (round_ctr_rst)
-        begin
-          round_ctr_new = 4'h0;
-          round_ctr_we  = 1'h1;
-        end
-
-      if (round_ctr_inc)
-        begin
-          round_ctr_new = round_ctr_reg + 1'h1;
-          round_ctr_we  = 1'h1;
-        end
-    end
-
-
-  //----------------------------------------------------------------
-  // core_ctrl
-  //
-  // Control FSM.
-  //----------------------------------------------------------------
-  always @*
-    begin : core_ctrl
-      init_key      = 1'h0;
-      next_key      = 1'h0;
-      final_key     = 1'h0;
-      init_state    = 1'h0;
-      next_state    = 1'h0;
-      final_state   = 1'h0;
-      round_ctr_rst = 1'h0;
-      round_ctr_inc = 1'h0;
-      ready_new     = 1'h0;
-      ready_we      = 1'h0;
-      core_ctrl_new = CTRL_IDLE;
-      core_ctrl_we  = 1'h0;
-
-      case (core_ctrl_reg)
-        CTRL_IDLE:
-          begin
-            if (init)
-              begin
-                core_ctrl_new = CTRL_INIT;
-                core_ctrl_we  = 1'b1;
-              end
-            else if (next)
-              begin
-                core_ctrl_new = CTRL_NEXT;
-                core_ctrl_we  = 1'b1;
-              end
-          end
-
-        CTRL_INIT:
-          begin
-            core_ctrl_new = CTRL_IDLE;
-            core_ctrl_we  = 1'b1;
-          end
-
-        CTRL_NEXT:
-          begin
-            core_ctrl_new = CTRL_IDLE;
-            core_ctrl_we  = 1'b1;
-          end
-
-        default:
-          begin
-
-          end
-      endcase // case (core_ctrl_reg)
-
-    end // core_ctrl
 endmodule // aes_mask
 
 //======================================================================
