@@ -9,6 +9,9 @@
 // each round in AES in the same cycle as SubBytes() and AddRoundKey().
 // Pull finalize() to prepare for next block of the message.
 //
+// The result output is quite useless. But some tools really don't
+// appreciate modules with only inputs.
+//
 //
 // Author: Joachim Strombergson
 // Copyright (c) 2019, Assured AB
