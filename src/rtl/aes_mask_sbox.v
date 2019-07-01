@@ -45,6 +45,8 @@ module aes_mask_sbox(
                      input wire [3 : 0]  x,
                      output wire [3 : 0] sx
                     );
+  reg [3 : 0] tsx;
+  assign sx = tsx;
 
   //----------------------------------------------------------------
   // sbox
@@ -52,22 +54,23 @@ module aes_mask_sbox(
   always @*
     begin : sbox
       case(x)
-        4'h0 : sx = 4'hb;
-        4'h1 : sx = 4'hf;
-        4'h2 : sx = 4'h3;
-        4'h3 : sx = 4'h2;
-        4'h4 : sx = 4'ha;
-        4'h5 : sx = 4'hc;
-        4'h6 : sx = 4'h9;
-        4'h7 : sx = 4'h1;
-        4'h8 : sx = 4'h6;
-        4'h9 : sx = 4'h7;
-        4'ha : sx = 4'h8;
-        4'hb : sx = 4'h0;
-        4'hc : sx = 4'he;
-        4'hd : sx = 4'h5;
-        4'he : sx = 4'hd;
-        4'hf : sx = 4'h4;
+        4'h0 : tsx = 4'hb;
+        4'h1 : tsx = 4'hf;
+        4'h2 : tsx = 4'h3;
+        4'h3 : tsx = 4'h2;
+        4'h4 : tsx = 4'ha;
+        4'h5 : tsx = 4'hc;
+        4'h6 : tsx = 4'h9;
+        4'h7 : tsx = 4'h1;
+        4'h8 : tsx = 4'h6;
+        4'h9 : tsx = 4'h7;
+        4'ha : tsx = 4'h8;
+        4'hb : tsx = 4'h0;
+        4'hc : tsx = 4'he;
+        4'hd : tsx = 4'h5;
+        4'he : tsx = 4'hd;
+        4'hf : tsx = 4'h4;
+      endcase // case (x)
     end
 
 endmodule // aes_mask_sbox

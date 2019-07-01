@@ -1,7 +1,7 @@
 //======================================================================
 //
-// tb_aes_mask.v
-// -------------
+// tb_aes_mask_core.v
+// ------------------
 // Testbench for the AES mask core.
 //
 //
@@ -39,7 +39,7 @@
 //------------------------------------------------------------------
 // Test module.
 //------------------------------------------------------------------
-module tb_aes_mask();
+module tb_aes_mask_core();
 
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
@@ -73,20 +73,20 @@ module tb_aes_mask();
   //----------------------------------------------------------------
   // Device Under Test.
   //----------------------------------------------------------------
-  aes_mask dut(
-               .clk(tb_clk),
-               .reset_n(tb_reset_n),
+  aes_mask_core dut(
+                    .clk(tb_clk),
+                    .reset_n(tb_reset_n),
 
-               .init(tb_init),
-               .next(tb_next),
-               .finalize(tb_finalize),
+                    .init(tb_init),
+                    .next(tb_next),
+                    .finalize(tb_finalize),
 
-               .key(tb_key),
-               .keylen(tb_keylen),
+                    .key(tb_key),
+                    .keylen(tb_keylen),
 
-               .block(tb_block),
-               .result(tb_result)
-              );
+                    .block(tb_block),
+                    .result(tb_result)
+                   );
 
 
   //----------------------------------------------------------------
@@ -224,9 +224,9 @@ module tb_aes_mask();
       $display("");
       $display("*** AES mask core simulation done. ***");
       $finish;
-    end // aes_mask_test
-endmodule // tb_aes_mask
+    end // aes_mask_core_test
+endmodule // tb_aes_mask_core
 
 //======================================================================
-// EOF tb_aes_mask.v
+// EOF tb_aes_mask_core.v
 //======================================================================

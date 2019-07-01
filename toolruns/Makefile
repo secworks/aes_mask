@@ -36,8 +36,8 @@
 #
 #===================================================================
 
-CORE_SRC=../src/rtl/aes_mask.v
-TB_CORE_SRC =../src/tb/tb_aes_mask.v
+CORE_SRC=../src/rtl/aes_mask_core.v ../src/rtl/aes_mask_sbox.v
+TB_CORE_SRC =../src/tb/tb_aes_mask_core.v
 
 CC = iverilog
 CC_FLAGS = -Wall

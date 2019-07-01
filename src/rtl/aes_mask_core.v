@@ -1,9 +1,13 @@
 //======================================================================
 //
-// aes_mask.v
-// ----------
-// Masking module for AES processing. Very experimental. Don't use
+// aes_mask_core.v
+// ---------------
+// Masking core for AES processing. Very experimental. Don't use
 // before doing proper DPA analysis with the core and an a AES-core.
+//
+// Pull init() to initialize masking for a message., Pull next for
+// each round in AES in the same cycle as SubBytes() and AddRoundKey().
+// Pull finalize() to prepare for next block of the message.
 //
 //
 // Author: Joachim Strombergson
@@ -37,20 +41,20 @@
 //
 //======================================================================
 
-module aes_mask(
-                input wire            clk,
-                input wire            reset_n,
+module aes_mask_core(
+                     input wire            clk,
+                     input wire            reset_n,
 
-                input wire            init,
-                input wire            next,
-                input wire            finalize,
+                     input wire            init,
+                     input wire            next,
+                     input wire            finalize,
 
-                input wire [127 : 0]  key,
-                input wire            keylen,
+                     input wire [127 : 0]  key,
+                     input wire            keylen,
 
-                input wire [127 : 0]  block,
-                output wire [127 : 0] result
-               );
+                     input wire [127 : 0]  block,
+                     output wire [127 : 0] result
+                    );
 
 
   //----------------------------------------------------------------
@@ -69,10 +73,24 @@ module aes_mask(
   reg [127 : 0] state_new;
   reg           state_we;
 
+  reg [127 : 0] sbox_in;
+  wire [127 : 0] sbox_out;
+
 
   //----------------------------------------------------------------
   // Instantiations.
+  // We instantiate 32 4-bit Sboxes.
   //----------------------------------------------------------------
+  genvar i;
+  generate
+    for(i = 0 ; i < 32 ; i = i + 1)
+      begin: sboxes
+        aes_mask_sbox sbox_array(.x(sbox_in[(((i + 1) * 4) - 1) : (i * 4)]),
+                                 .sx(sbox_out[(((i + 1) * 4) - 1) : (i * 4)])
+                                );
+      end
+  endgenerate
+
 
   //----------------------------------------------------------------
   // AES round functions with sub functions.
@@ -176,8 +194,10 @@ module aes_mask(
       state_new = 128'h0;
       state_we  = 1'h0;
 
+      // AES Round. Almost.
       mixed_state = mixcolumns(state_reg);
-      rkey_state = addroundkey(mixed_state, round_key_reg);
+      sbox_in = mixed_state;
+      rkey_state = addroundkey(sbox_out, round_key_reg);
 
       if (init)
         begin
@@ -244,8 +264,8 @@ module aes_mask(
           round_key_new = round_key_reg ^ key;
         end
     end
-endmodule // aes_mask
+endmodule // aes_mask_core
 
 //======================================================================
-// EOF aes_mask.v
+// EOF aes_mask_core.v
 //======================================================================
