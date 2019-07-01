@@ -49,8 +49,7 @@ module aes_mask(
                 input wire            keylen,
 
                 input wire [127 : 0]  block,
-                output wire [127 : 0] result,
-                output wire           ready
+                output wire [127 : 0] result
                );
 
 
@@ -119,7 +118,7 @@ module aes_mask(
 
       if (init)
         begin
-          state_reg = block;
+          state_new = block;
           state_we  = 1'h1;
         end
 
