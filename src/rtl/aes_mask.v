@@ -43,13 +43,13 @@ module aes_mask(
 
                 input wire            init,
                 input wire            next,
-                output wire           ready,
 
                 input wire [127 : 0]  key,
                 input wire            keylen,
 
                 input wire [127 : 0]  block,
-                output wire [127 : 0] result
+                output wire [127 : 0] result,
+                output wire           ready
                );
 
 
@@ -82,7 +82,7 @@ module aes_mask(
   reg           final_state;
 
   reg [3 : 0]   round_ctr_reg;
-  reg [3 : 0]   round_ctr_reg;
+  reg [3 : 0]   round_ctr_new;
   reg           round_ctr_rst;
   reg           round_ctr_inc;
   reg           round_ctr_we;
@@ -153,7 +153,7 @@ module aes_mask(
   // The actual round logic that causes the masking.
   //----------------------------------------------------------------
   always @*
-    begin : round_key_logic
+    begin : round_logic
       state_new = 128'h0;
       state_we  = 1'h0;
 
@@ -175,7 +175,7 @@ module aes_mask(
 
 
           // AddRoundKey
-          state_we = state_reg ^ round_key_reg;
+          state_new = state_reg ^ round_key_reg;
         end
 
 
@@ -214,12 +214,12 @@ module aes_mask(
           if (keylen)
             begin
               round_key_new = {round_key_reg[21 : 0],
-                               round_key_reg[31 : 22]};
+                               round_key_reg[127 : 22]};
             end
           else
             begin
               round_key_new = {round_key_reg[18 : 0],
-                               round_key_reg[31 : 19]};
+                               round_key_reg[127 : 19]};
             end
         end
 
