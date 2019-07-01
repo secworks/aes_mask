@@ -57,9 +57,6 @@ module aes_mask(
   //----------------------------------------------------------------
   // Internal constant and parameter definitions.
   //----------------------------------------------------------------
-  localparam CTRL_IDLE  = 2'h0;
-  localparam CTRL_INIT  = 2'h1;
-  localparam CTRL_NEXT  = 2'h2;
 
 
   //----------------------------------------------------------------
