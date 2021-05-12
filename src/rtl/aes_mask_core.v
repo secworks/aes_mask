@@ -44,6 +44,8 @@
 //
 //======================================================================
 
+`default_nettype none
+
 module aes_mask_core(
                      input wire            clk,
                      input wire            reset_n,

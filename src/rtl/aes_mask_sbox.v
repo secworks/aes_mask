@@ -41,6 +41,8 @@
 //
 //======================================================================
 
+`default_nettype none
+
 module aes_mask_sbox(
                      input wire [3 : 0]  x,
                      output wire [3 : 0] sx
