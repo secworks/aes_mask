@@ -1,0 +1,38 @@
+CAPI=2:
+
+name : secworks:crypto:aes_mask:0
+
+filesets:
+  rtl:
+    files:
+      - src/rtl/aes_mask_core.v
+      - src/rtl/aes_mask_sbox.v
+    file_type : verilogSource
+
+  tb:
+    files:
+      - src/tb/tb_aes_mask_core.v
+    file_type : verilogSource
+
+  openlane: {files : [data/sky130.tcl : {file_type : tclSource}]}
+
+targets:
+  default:
+    filesets: [rtl]
+
+  lint:
+    default_tool : verilator
+    filesets : [rtl]
+    tools:
+      verilator:
+        mode : lint-only
+    toplevel : aes_mask_core
+
+  sky130:
+    default_tool: openlane
+    filesets: [rtl, openlane]
+    toplevel: aes_mask_core
+
+  tb_aes_mask_core:
+    <<: *tb
+    toplevel : tb_aes_mask_core
