@@ -1,6 +1,6 @@
 CAPI=2:
 
-name : secworks:crypto:aes_mask:0
+name : secworks:crypto:aes_mask_core:0
 
 filesets:
   rtl:
